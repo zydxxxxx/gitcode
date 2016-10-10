@@ -13,6 +13,7 @@ struct ArcNode{
 struct VNode{
 	int data;
 	int d;
+	int status;
 	struct ArcNode *firstarc;
 };
 using namespace std;
@@ -32,6 +33,7 @@ public:
 	void DFS();
 	void DFS_self();
 	void BFS();
+	//void BFS_self();
 	~CGraph(void);
 };
 CGraph::CGraph(string name)
@@ -57,47 +59,47 @@ CGraph::~CGraph(void)
 void CGraph::BFS()
 {
 
-	int *visit = new int[n];
+	//int *visit = new int[n];
+	//for (int i = 0; i<n; i++)
+	//{
+	//	visit[i] = 0;
+	//}
+	queue<int> q;                                             //注释部分为使用stl队列的代码
+	//int *qu;
+	//qu = new int[n+2];
+	//int front, rear;
 	for (int i = 0; i<n; i++)
 	{
-		visit[i] = 0;
-	}
-	/*queue<int> q;    */                                         //注释部分为使用stl队列的代码
-	int *qu;
-	qu = new int[n+2];
-	int front, rear;
-	for (int i = 0; i<n; i++)
-	{
-		if (visit[i] == 0)
+		if (adjlist[i].status == 0)
 		{
-		/*	q.push(i);*/
-			front = 0;
-			rear = 0;                                  //原来的速率为1100ms在此每次将队列进行初始化以后时间变成了708ms
-			rear = (rear + 1) % n;
-			qu[rear] = i;
-			visit[i] = 1;
+			q.push(i);
+			//front = 0;
+			//rear = 0;                                  //原来的速率为1100ms在此每次将队列进行初始化以后时间变成了708ms
+			//rear = (rear + 1) % n;
+			//qu[rear] = i;
+			adjlist[i].status  = 1;
 			int u;
-			//while(!q.empty())
-			while (front!=rear)
+			while(!q.empty())
+			//while (front!=rear)
 			{
-				//u=q.front();
-				//q.pop();
-				front = (front + 1) % n;
-				u = qu[front];		    
+				u=q.front();
+				q.pop();
+/*				front = (front + 1) % n;
+				u = qu[front];	*/	    
 				for (ArcNode *p= adjlist[u].firstarc; p != NULL; p = p->nextarc)
 				{
-					if (visit[p->adjvex] == 0)
+					if (adjlist[p->adjvex].status == 0)
 					{	
-						visit[p->adjvex] = 1;
-						//q.push(p->adjvex);
-						rear = (rear + 1) % n;
-						qu[rear] = p->adjvex;
+						adjlist[p->adjvex].status = 1;
+						q.push(p->adjvex);
+						//rear = (rear + 1) % n;
+						//qu[rear] = p->adjvex;
 					}
 				}
 			}
 		}
 	}
-	delete qu;
+	//delete qu;
 }
 void CGraph::DFS()
 {
@@ -135,18 +137,12 @@ void CGraph::DFS()
 }
 void CGraph::dfs()
 {
-	visit = new int[n];
 	int k = 0;
-	while (k<n)
-	{
-		visit[k] = 0;
-		k++;
-	}
 	for (k = 0; k<n; k++)
 	{
-		if (visit[k] == 0)
+		if (adjlist[k].status==0)
 		{
-			visit[adjlist[k].data] = 1;
+			adjlist[k].status = 1;
 			dfsvisit(adjlist[k]);
 		}
 	}
@@ -156,10 +152,9 @@ void CGraph::dfsvisit(VNode &u)
 	
 	for (ArcNode *p = u.firstarc; p != NULL; p = p->nextarc)
 	{
-		if (visit[p->adjvex] == 0)
+		if (adjlist[p->adjvex].status == 0)
 		{
-
-			visit[p->adjvex] = 1;
+			adjlist[p->adjvex].status = 1;
 			dfsvisit(adjlist[p->adjvex]);
 		}
 	}
@@ -174,6 +169,7 @@ void CGraph::InitNode(string name)
 	{
 		adjlist[k].data = k;
 		adjlist[k].firstarc = NULL;
+		adjlist[k].status = 0;
 	}
 	while (fscanf(fp, "%d", &i) != EOF)
 	{
@@ -191,17 +187,12 @@ void CGraph::InitNode(string name)
 //	queue<int> qu;//用来存储结点的队列;
 //	//vector<int> test;//用来存储广度优先搜索的访问顺序;
 //	//if (head!=NULL)
-//	int *visit = new int[n];
-//	for (int i = 0; i<n; i++)
-//	{
-//		visit[i] = 0;
-//	}
 //	for (int i = 0; i<n; ++i)
 //	{
-//		if (visit[i] == 0)
+//		if (adjlist[i].status == 0)
 //		{
 //			qu.push(i);
-//			visit[i] = 1;
+//			adjlist[i].status = 1;
 //			ArcNode *p;
 //			while (!qu.empty()){
 //				p = adjlist[qu.front()].firstarc;//我们需要的是即将出队列的那个元素;
@@ -209,10 +200,10 @@ void CGraph::InitNode(string name)
 //				//cout<<qu.back()<<endl;//.back()函数返回的值为队列中的最后一个;
 //				//	cout<<qu.front()<<endl;
 //				while (p != NULL){
-//					if (visit[p->adjvex] == 0)//当前顶点没有被访问过，进入队列;
+//					if (adjlist[p->adjvex].status == 0)//当前顶点没有被访问过，进入队列;
 //					{
 //						qu.push(p->adjvex);
-//						visit[p->adjvex] = 1;
+//						adjlist[p->adjvex].status = 1;
 //					}
 //					p = p->nextarc;
 //				}
@@ -232,29 +223,24 @@ void CGraph::InitNode(string name)
 //void CGraph::BFS_self(){
 //	int* qu;
 //	qu = new int[n + 2];
-//	int *visit = new int[n];
-//	for (int i = 0; i<n; i++)
-//	{
-//		visit[i] = 0;
-//	}
 //	for (int i = 0; i<n; ++i)
 //	{
-//		if (visit[i] == 0)
+//		if (adjlist[i].status == 0)
 //		{
 //			ArcNode* temp;
 //			int j;//;
 //			int rear = 0, front = 0;
 //			rear = (rear + 1) % n;
 //			qu[rear] = i;
-//			visit[i] = 1;
+//			adjlist[i].status = 1;
 //			while (front != rear){
 //				front = (front + 1) % n;
 //				j = qu[front];
 //				temp = adjlist[j].firstarc;
 //				while (temp != NULL){
-//					if (visit[temp->adjvex] == 0)
+//					if (adjlist[temp->adjvex].status == 0)
 //					{
-//						visit[temp->adjvex] = 1;
+//						adjlist[temp->adjvex].status = 1;
 //						rear = (rear + 1) % n;
 //						qu[rear] = temp->adjvex;
 //					}
