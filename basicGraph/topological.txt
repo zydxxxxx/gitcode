@@ -1,0 +1,69 @@
+拓扑排序kahn（）
+1、有一个记录每个节点入度的标记，首先将所有的0度数的节点入栈。
+2、每次将一个零度的节点出栈排列，然后删除它的出边（这里我们只需减小它所指向节点的大小），将所有的0度数的节点入栈重复第二步。
+void Graph::Kahn(){                                                               
+	clock_t time = clock();
+	int n = 0;//用来记录输出的顶点的个数;
+	int* stack;
+	stack = new int[vexNum];
+	int top = -1;
+	Edge* p = NULL;
+	for (int i = 0; i<vexNum; ++i)
+	{//将入度为0的顶点入栈;
+		if (head[i].incount == 0)
+		{
+			stack[++top] = i;
+		}
+	}//for;
+	while (top != -1){
+		n++;
+		int temp1, temp2;
+		temp1 = stack[top--];
+		p = head[temp1].firstEdge;
+		while (p != NULL){
+			temp2 = --(head[p->vexName].incount);
+			if (temp2 == 0)
+			{
+				stack[++top] = p->vexName;
+			}
+			p = p->next;
+		}//while;
+	}//while;
+	if (n == vexNum)
+	{
+		cout << "success" << endl;
+	}
+	else{
+		cout << "fail" << endl;
+	}
+	time = clock() - time;
+	cout << "use Kahn topplogical sort time :" << time << endl;
+}
+拓扑排序DFS（） 
+1、遍历顺序与深度优先一致、只是在深度优先返回的时候将节点输出，输出顺序是一个逆向的拓扑排序。
+void Graph::DFS(int v){                                              
+	head[v].visit = 1;
+	Edge* p = NULL;
+	p = head[v].firstEdge;
+	while (p != NULL){///////////注意：必需不能存在环;
+		if (head[p->vexName].visit == 0)
+		{
+			DFS(p->vexName);
+		}
+		p = p->next;
+	}
+	//在这里输出;
+}
+
+void Graph::Under_DFS(){
+	clock_t time = clock();
+	for (int i = 0; i<vexNum; ++i)
+	{
+		if (head[i].visit == 0)
+		{
+			DFS(i);
+		}
+	}
+	time = clock() - time;
+	cout << "under DFS topological sort use time " << time << endl;
+}
